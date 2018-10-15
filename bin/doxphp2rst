@@ -1,0 +1,69 @@
+#!/usr/bin/env php
+<?php
+
+$lib = __DIR__.'/../lib';
+
+if (!is_dir('docs')) {
+    mkdir('docs');
+}
+
+function makeRstFilename($name) {
+    $suffix = $name;
+    if ($name === '') {
+        $suffix = "src_Ridibooks";
+    }
+
+    return "$suffix.rst";
+}
+
+function getDirContents($dir, $root_prefix, $direct_parent = ''){
+    $files = scandir($dir);
+    $file_cmd = array();
+    $first_dir = true;
+
+    foreach($files as $key => $value){
+        $path = realpath($dir.DIRECTORY_SEPARATOR.$value);
+        $my_name = pathinfo($path, PATHINFO_FILENAME);
+
+        if(!is_dir($path)) {
+          if (pathinfo($path, PATHINFO_EXTENSION) === 'php') {
+            $file_cmd[] = $path;
+          }
+        } else if($value != "." && $value != "..") {
+//            makeDirforRst();
+            if (!is_dir("./docs/$root_prefix/$my_name")) {
+                mkdir("./docs/$root_prefix/$my_name");
+            }
+            $my_doc = $root_prefix. "/" . $my_name . "\n" . str_repeat('=', strlen($my_name)+strlen($root_prefix)+1) . "\n";
+            exec("echo \"$my_doc\" > ./docs/$root_prefix/$my_name/idx.rst");
+
+            getDirContents($path, "$root_prefix/$my_name", $my_name);
+
+            $parent_doc = "   $my_name/idx";
+            if ($first_dir) {
+                $parent_doc  = ".. toctree::\n" . $parent_doc;
+                $first_dir = false;
+            }
+            exec("echo \"$parent_doc\" >> ./docs/$root_prefix/idx.rst");
+        }
+    }
+}
+$prefix = 'Ridibooks/Api';
+$root_name = 'src_Ridibooks';
+$temp_prefix = "./docs";
+
+foreach(explode ("/", 'Ridibooks/Api') as $dir) {
+    $temp_prefix = "$temp_prefix/$dir";
+    if (!is_dir($temp_prefix)) {
+        mkdir($temp_prefix);
+    }
+}
+
+$root_doc = $prefix . "/" . $root_name . "\n" . str_repeat('=', strlen($root_name)+strlen($prefix)+1) . "\n";
+exec("echo \"$root_doc\" > ./docs/$prefix/". makeRstFilename($root_name));
+
+getDirContents('/Users/jw.yang/Documents/store_test/src/Ridibooks/Api', 'Ridibooks/Api');
+
+//foreach(getDirContents('/Users/jw.yang/Documents/store_test/src/Ridibooks/Api') as $file) {
+  // print("$file\n");
+//}
