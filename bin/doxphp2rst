@@ -1,22 +1,13 @@
 #!/usr/bin/env php
 <?php
 
-$lib = __DIR__.'/../lib';
+//$lib = __DIR__.'/../lib';
 
-if (!is_dir('docs')) {
-    mkdir('docs');
+if (!is_dir('./docs')) {
+    mkdir('./docs');
 }
 
-function makeRstFilename($name) {
-    $suffix = $name;
-    if ($name === '') {
-        $suffix = "src_Ridibooks";
-    }
-
-    return "$suffix.rst";
-}
-
-function getDirContents($dir, $root_prefix, $direct_parent = ''){
+function getDirContents($dir, $root_prefix){
     $files = scandir($dir);
     $file_cmd = array();
     $first_dir = true;
@@ -27,43 +18,46 @@ function getDirContents($dir, $root_prefix, $direct_parent = ''){
 
         if(!is_dir($path)) {
           if (pathinfo($path, PATHINFO_EXTENSION) === 'php') {
-            $file_cmd[] = $path;
+              $my_doc = $my_name . "\n" . str_repeat('-', strlen($my_name)+strlen($root_prefix)+1) . "\n";
+              $file_cmd[] = "{ echo \"$my_doc\"; ./vendor/doxphp/doxphp/bin/doxphp < $path | ./vendor/doxphp/doxphp/bin/doxphp2sphinx; echo \"\n\"; } >> ./docs/$root_prefix/idx.rst";
           }
         } else if($value != "." && $value != "..") {
-//            makeDirforRst();
             if (!is_dir("./docs/$root_prefix/$my_name")) {
                 mkdir("./docs/$root_prefix/$my_name");
             }
-            $my_doc = $root_prefix. "/" . $my_name . "\n" . str_repeat('=', strlen($my_name)+strlen($root_prefix)+1) . "\n";
+            $my_doc = "/" . $my_name . "\n" . str_repeat('=', strlen($my_name)+strlen($root_prefix)+1) . "\n";
             exec("echo \"$my_doc\" > ./docs/$root_prefix/$my_name/idx.rst");
 
-            getDirContents($path, "$root_prefix/$my_name", $my_name);
+            getDirContents($path, "$root_prefix/$my_name");
 
             $parent_doc = "   $my_name/idx";
             if ($first_dir) {
-                $parent_doc  = ".. toctree::\n" . $parent_doc;
+                $parent_doc  = ".. toctree::\n   :maxdepth: 2\n\n" . $parent_doc;
                 $first_dir = false;
             }
             exec("echo \"$parent_doc\" >> ./docs/$root_prefix/idx.rst");
         }
     }
+
+    if (!$first_dir) {
+        exec("echo \"\" >> ./docs/$root_prefix/idx.rst");
+    }
+
+    foreach($file_cmd as $cmd) {
+        exec($cmd);
+    }
 }
-$prefix = 'Ridibooks/Api';
-$root_name = 'src_Ridibooks';
+$prefix = 'Ridibooks';
 $temp_prefix = "./docs";
 
-foreach(explode ("/", 'Ridibooks/Api') as $dir) {
+foreach(explode ("/", 'Ridibooks') as $dir) {
     $temp_prefix = "$temp_prefix/$dir";
     if (!is_dir($temp_prefix)) {
         mkdir($temp_prefix);
     }
 }
 
-$root_doc = $prefix . "/" . $root_name . "\n" . str_repeat('=', strlen($root_name)+strlen($prefix)+1) . "\n";
-exec("echo \"$root_doc\" > ./docs/$prefix/". makeRstFilename($root_name));
+$root_doc = "src/" . $prefix . "\n" . str_repeat('=', strlen($prefix)+4) . "\n";
+exec("echo \"$root_doc\" > ./docs/$prefix/idx.rst");
 
-getDirContents('/Users/jw.yang/Documents/store_test/src/Ridibooks/Api', 'Ridibooks/Api');
-
-//foreach(getDirContents('/Users/jw.yang/Documents/store_test/src/Ridibooks/Api') as $file) {
-  // print("$file\n");
-//}
+getDirContents('./src/Ridibooks', 'Ridibooks');

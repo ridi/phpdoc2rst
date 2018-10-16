@@ -3,12 +3,6 @@
   "type": "library",
   "license": "MIT",
   "version": "0.0.1-dev",
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/sunsidew/doxphp.git"
-    }
-  ],
   "require": {
     "doxphp/doxphp": "dev-master"
   }
