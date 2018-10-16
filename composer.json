@@ -2,9 +2,11 @@
   "name": "ridibooks/doxphp2rst-with-depth",
   "type": "library",
   "license": "MIT",
+  "description": "convert doxphp to rst with directorizing.",
   "version": "0.0.1-dev",
   "require": {
     "doxphp/doxphp": "dev-master"
   },
-  "minimum-stability": "dev"
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }
