@@ -5,5 +5,6 @@
   "version": "0.0.1-dev",
   "require": {
     "doxphp/doxphp": "dev-master"
-  }
+  },
+  "minimum-stability": "dev"
 }
