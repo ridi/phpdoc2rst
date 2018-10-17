@@ -1,12 +1,15 @@
 #!/usr/bin/env php
 <?php
 
+define('ROOT_DIR', __DIR__.'/../../../..');
+define('DOC_DIR', ROOT_DIR.'/docs');
+define('DOXPHP_BIN', ROOT_DIR."/vendor/doxphp/doxphp/bin");
+
+require ROOT_DIR.'/vendor/autoload.php';
 use ProgressBar\Manager;
 
-$file_cnt = 1;
-
 function makeIdxRstFilePath($prefix) {
-    return "./docs/$prefix/idx.rst";
+    return DOC_DIR."/$prefix/idx.rst";
 }
 
 function initProgressBar($src_path) {
@@ -45,8 +48,7 @@ function addRstListChildCmd($name, &$first_dir) {
 }
 
 function convertRstCmd($target_php) {
-    $doxphp_bin_path = "./vendor/doxphp/doxphp/bin";
-    return "$doxphp_bin_path/doxphp < $target_php | $doxphp_bin_path/doxphp2sphinx";
+    return DOXPHP_BIN."/doxphp < $target_php | ".DOXPHP_BIN."/doxphp2sphinx";
 }
 
 function addNewlineCmd() {
@@ -81,19 +83,18 @@ function getDirContents($dir, $root_prefix, &$progressBar) {
         $my_name = pathinfo($path, PATHINFO_FILENAME);
 
         if(is_dir($path) && $value != "." && $value != "..") {
-            makeDirIfNotExist("./docs/$root_prefix/$my_name");
+            makeDirIfNotExist(DOC_DIR."/$root_prefix/$my_name");
 
             exec(makeRstTitleCmd("/$my_name") . " > " . makeIdxRstFilePath("$root_prefix/$my_name"));
             exec(addRstListChildCmd($my_name, $first_dir) . " >> " . makeIdxRstFilePath($root_prefix));
 
             getDirContents($path, "$root_prefix/$my_name", $progressBar);
         } else if (pathinfo($path, PATHINFO_EXTENSION) === 'php') {
-            $file_cmd[] = combineMultiCmds(
-                [
-                    makeRstTitleCmd($my_name, '-'),
-                    convertRstCmd($path),
-                    addNewlineCmd()
-                ]) . ">> " . makeIdxRstFilePath($root_prefix);
+            $file_cmd[] = combineMultiCmds([
+                makeRstTitleCmd($my_name, '-'),
+                convertRstCmd($path),
+                addNewlineCmd()
+            ]) . ">> " . makeIdxRstFilePath($root_prefix);
 
             addProgress($progressBar);
         }
@@ -106,9 +107,10 @@ function getDirContents($dir, $root_prefix, &$progressBar) {
 $top_prefix = 'Ridibooks';
 $target_src = "src/$top_prefix";
 
-$progressBar = initProgressBar("./$target_src");
+$file_cnt = 1;
+$progressBar = initProgressBar(ROOT_DIR."/$target_src");
 
-makeDirIfNotExist("./docs/$top_prefix");
+makeDirIfNotExist(DOC_DIR."/$top_prefix");
 exec(makeRstTitleCmd($target_src) . " > ". makeIdxRstFilePath($top_prefix));
 
-getDirContents("./$target_src", $top_prefix, $progressBar);
+getDirContents(ROOT_DIR."/$target_src", $top_prefix, $progressBar);
