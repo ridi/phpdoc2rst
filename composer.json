@@ -2,6 +2,12 @@
   "name": "ridibooks/doxphp2rst-with-depth",
   "type": "library",
   "license": "MIT",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/sunsidew/doxphp.git"
+    }
+  ],
   "description": "convert doxphp to rst with directorize.",
   "version": "0.0.3",
   "minimum-stability": "dev",
