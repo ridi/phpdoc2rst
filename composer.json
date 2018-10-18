@@ -3,10 +3,10 @@
   "type": "library",
   "license": "MIT",
   "description": "convert doxphp to rst with directorize.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "minimum-stability": "dev",
   "require": {
-    "doxphp/doxphp": "dev-master",
+    "doxphp/doxphp": "^0.2.1",
     "guiguiboy/php-cli-progress-bar": "^0.0.4"
   }
 }
