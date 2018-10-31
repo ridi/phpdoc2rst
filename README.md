@@ -1,9 +1,9 @@
-# doxphp2rst-with-depth
+# phpdoc2rst
 
 ## Installation
-Clone this repository and put the `doxphp2rst-with-depth` under bin directory in your executable path.
+Clone this repository and put the `phpdoc2rst` under bin directory in your executable path.
 
 ## Usage
 ```shell
-$ ./vendor/ridibooks/doxphp2rst-with-depth/bin/doxphp2rst
+$ ./vendor/ridibooks/doxphp2rst-with-depth/bin/phpdoc2rst
 ```
