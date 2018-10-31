@@ -5,7 +5,7 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/sunsidew/doxphp.git"
+      "url": "https://github.com/ridi/doxphp.git"
     }
   ],
   "description": "convert doxphp to rst with directorize.",
