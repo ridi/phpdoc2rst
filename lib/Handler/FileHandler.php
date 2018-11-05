@@ -36,7 +36,7 @@ class FileHandler
     public function __construct($top_prefix = 'Ridibooks')
     {
         $this->top_prefix = $top_prefix;
-        $this->target_src = 'src/'.$top_prefix.'/Api';
+        $this->target_src = 'src/'.$top_prefix;
 
         $this->progressBar = new PDRProgressBar(ROOT_DIR."/".$this->target_src);
         $this->strHandler = new StringHandler();
