@@ -7,15 +7,31 @@ use ProgressBar\Manager;
 
 class PDRProgressBar
 {
-    private $progressBar;
-    private $file_cnt = 1;
 
+    /**
+     * @var Manager
+     */
+    private $progressBar;
+
+    /**
+     * @var int
+     */
+    private $file_cnt;
+
+    /**
+     * PDRProgressBar constructor.
+     * @param string $src_path
+     */
     public function __construct($src_path)
     {
         $this->file_cnt = 1;
         $this->progressBar = $this->initProgressBar($src_path);
     }
 
+    /**
+     * @param string $src_path
+     * @return Manager
+     */
     function initProgressBar($src_path) {
         $total_php_cnt = 0;
 

@@ -9,12 +9,30 @@ use Util\PDRProgressBar;
 
 class FileHandler
 {
+    /**
+     * @var string
+     */
     private $top_prefix;
+
+    /**
+     * @var string
+     */
     private $target_src;
 
+    /**
+     * @var PDRProgressBar
+     */
     private $progressBar;
+
+    /**
+     * @var StringHandler
+     */
     private $strHandler;
 
+    /**
+     * FileHandler constructor.
+     * @param string $top_prefix
+     */
     public function __construct($top_prefix = 'Ridibooks')
     {
         $this->top_prefix = $top_prefix;
@@ -35,12 +53,19 @@ class FileHandler
         $this->getDirContents(ROOT_DIR."/$this->target_src", $this->top_prefix);
     }
 
+    /**
+     * @param string $path
+     */
     public function makeDirIfNotExist($path) {
         if (!file_exists($path) && !is_dir($path) && pathinfo($path, PATHINFO_EXTENSION) === "") {
           mkdir($path);
         }
     }
 
+    /**
+     * @param string $dir
+     * @param string $root_prefix
+     */
     function getDirContents($dir, $root_prefix) {
         $file_cmd = [];
         $first_dir = true;
