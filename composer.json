@@ -9,7 +9,7 @@
       "url": "https://github.com/ridi/doxphp.git"
     }
   ],
-  "description": "convert doxphp to rst with directorize.",
+  "description": "convert doxphp to rst with directory structure.",
   "version": "0.0.3",
   "minimum-stability": "dev",
   "require": {
