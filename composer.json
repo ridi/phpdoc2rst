@@ -1,7 +1,8 @@
 {
-  "name": "ridibooks/doxphp2rst-with-depth",
+  "name": "ridibooks/phpdoc2rst",
   "type": "library",
   "license": "MIT",
+  "bin": ["bin/phpdoc2rst"],
   "repositories": [
     {
       "type": "vcs",
@@ -12,6 +13,7 @@
   "version": "0.0.3",
   "minimum-stability": "dev",
   "require": {
+    "php": "~7.1.0",
     "doxphp/doxphp": "^0.2.1",
     "guiguiboy/php-cli-progress-bar": "^0.0.4"
   }
