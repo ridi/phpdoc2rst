@@ -1,116 +1,14 @@
 #!/usr/bin/env php
 <?php
 
-define('ROOT_DIR', __DIR__.'/../../../..');
-define('DOC_DIR', ROOT_DIR.'/docs');
-define('DOXPHP_BIN', ROOT_DIR."/vendor/doxphp/doxphp/bin");
+require_once __DIR__.'/../lib/Util/Constant.php';
+require_once LIB_DIR.'/Handler/FileHandler.php';
 
-require ROOT_DIR.'/vendor/autoload.php';
-use ProgressBar\Manager;
-
-function makeIdxRstFilePath($prefix) {
-    return DOC_DIR."/$prefix/idx.rst";
+try {
+    $handler = new \Handler\FileHandler();
+    $handler->convertDocsToRsts();
+} catch (Exception $e) {
+    echo $e->getMessage();
+    echo $e->getTraceAsString();
+    exit(1);
 }
-
-function initProgressBar($src_path) {
-    $total_php_cnt = 0;
-    $path = realpath($src_path);
-
-    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path)) as $filename)
-    {
-        if ($filename->getExtension() !== "php") continue;
-        $total_php_cnt += 1;
-    }
-
-    return new Manager(0, $total_php_cnt, 50, '█', ' ', '▋');
-}
-
-function addProgress($progressBar) {
-    global $file_cnt;
-
-    $progressBar->update($file_cnt);
-    $file_cnt += 1;
-}
-
-function makeRstTitleCmd($name, $underline_type = '=') {
-    return "echo \"$name\n" . str_repeat($underline_type, strlen($name)) . "\n\"";
-}
-
-function addRstListChildCmd($name, &$first_dir) {
-    $list_child = "   $name/idx";
-
-    if ($first_dir) {
-        $first_dir = false;
-        $list_child = ".. toctree::\n   :maxdepth: 2\n\n$list_child";
-    }
-
-    return "echo \"$list_child\"";
-}
-
-function convertRstCmd($target_php) {
-    return DOXPHP_BIN."/doxphp < $target_php | ".DOXPHP_BIN."/doxphp2sphinx";
-}
-
-function addNewlineCmd() {
-    return "echo \"\n\"";
-}
-
-function combineMultiCmds($cmd_list) {
-    $combined_cmd = "{ ";
-
-    foreach ($cmd_list as $cmd) {
-        $combined_cmd .= "$cmd;";
-    }
-    $combined_cmd .= "}";
-
-    return $combined_cmd;
-}
-
-function makeDirIfNotExist($path) {
-    if (!file_exists($path) && !is_dir($path) && pathinfo($path, PATHINFO_EXTENSION) === "") {
-        mkdir($path);
-    }
-}
-
-function getDirContents($dir, $root_prefix, &$progressBar) {
-    $file_cmd = array();
-    $first_dir = true;
-
-    $files = scandir($dir);
-
-    foreach($files as $key => $value){
-        $path = realpath($dir.DIRECTORY_SEPARATOR.$value);
-        $my_name = pathinfo($path, PATHINFO_FILENAME);
-
-        if(is_dir($path) && $value != "." && $value != "..") {
-            makeDirIfNotExist(DOC_DIR."/$root_prefix/$my_name");
-
-            exec(makeRstTitleCmd("/$my_name") . " > " . makeIdxRstFilePath("$root_prefix/$my_name"));
-            exec(addRstListChildCmd($my_name, $first_dir) . " >> " . makeIdxRstFilePath($root_prefix));
-
-            getDirContents($path, "$root_prefix/$my_name", $progressBar);
-        } else if (pathinfo($path, PATHINFO_EXTENSION) === 'php') {
-            $file_cmd[] = combineMultiCmds([
-                makeRstTitleCmd($my_name, '-'),
-                convertRstCmd($path),
-                addNewlineCmd()
-            ]) . ">> " . makeIdxRstFilePath($root_prefix);
-
-            addProgress($progressBar);
-        }
-    }
-
-    if (!$first_dir) exec("echo \"\" >> " . makeIdxRstFilePath($root_prefix));
-    foreach($file_cmd as $cmd) { exec($cmd); }
-}
-
-$top_prefix = 'Ridibooks';
-$target_src = "src/$top_prefix";
-
-$file_cnt = 1;
-$progressBar = initProgressBar(ROOT_DIR."/$target_src");
-
-makeDirIfNotExist(DOC_DIR."/$top_prefix");
-exec(makeRstTitleCmd($target_src) . " > ". makeIdxRstFilePath($top_prefix));
-
-getDirContents(ROOT_DIR."/$target_src", $top_prefix, $progressBar);
