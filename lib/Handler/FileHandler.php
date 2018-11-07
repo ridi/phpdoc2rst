@@ -10,6 +10,16 @@ class FileHandler
     /**
      * @var string
      */
+    private $root_dir;
+
+    /**
+     * @var string
+     */
+    private $doc_dir;
+
+    /**
+     * @var string
+     */
     private $top_prefix;
 
     /**
@@ -18,7 +28,7 @@ class FileHandler
     private $target_src;
 
     /**
-     * @var PDRProgressBar
+     * @var ProgressBar
      */
     private $progressBar;
 
@@ -28,14 +38,17 @@ class FileHandler
     private $strHandler;
 
     /**
+     * @param string $root_dir
      * @param string $top_prefix
      */
-    public function __construct(string $top_prefix = 'Ridibooks')
+    public function __construct(string $root_dir, string $top_prefix = 'Ridibooks')
     {
+        $this->root_dir = $root_dir;
+        $this->doc_dir = "$root_dir/docs";
         $this->top_prefix = $top_prefix;
         $this->target_src = "src/$top_prefix";
 
-        $this->progressBar = new ProgressBar(ROOT_DIR."/$this->target_src");
+        $this->progressBar = new ProgressBar("$root_dir/$this->target_src");
         $this->strHandler = new StringHandler();
 
         $this->initRootDir();
@@ -43,7 +56,7 @@ class FileHandler
 
     public function convertDocsToRsts(): void
     {
-        $this->getDirContents(ROOT_DIR."/$this->target_src", $this->top_prefix);
+        $this->getDirContents("$this->root_dir/$this->target_src", $this->top_prefix);
     }
 
     /**
@@ -58,9 +71,9 @@ class FileHandler
 
     private function initRootDir(): void
     {
-        $this->makeDirIfNotExist(DOC_DIR."/$this->top_prefix");
+        $this->makeDirIfNotExist("$this->doc_dir/$this->top_prefix");
         exec($this->strHandler->makeRstTitleCmd($this->target_src) . " > " .
-            $this->strHandler->makeIdxRstFilePath($this->top_prefix));
+            $this->strHandler->makeIdxRstFilePath("$this->doc_dir/$this->top_prefix"));
     }
 
     /**
@@ -80,27 +93,27 @@ class FileHandler
             $my_name = pathinfo($path, PATHINFO_FILENAME);
 
             if (is_dir($path) && $file_name !== "." && $file_name !== "..") {
-                $this->makeDirIfNotExist(DOC_DIR."/$root_prefix/$my_name");
+                $this->makeDirIfNotExist("$this->doc_dir/$root_prefix/$my_name");
 
                 exec($this->strHandler->makeRstTitleCmd("/$my_name") . " > " .
-                    $this->strHandler->makeIdxRstFilePath("$root_prefix/$my_name"));
+                    $this->strHandler->makeIdxRstFilePath("$this->doc_dir/$root_prefix/$my_name"));
                 exec($this->strHandler->addRstListChildCmd($my_name, $first_dir) . " >> " .
-                    $this->strHandler->makeIdxRstFilePath($root_prefix));
+                    $this->strHandler->makeIdxRstFilePath("$this->doc_dir/$root_prefix"));
 
                 $this->getDirContents($path, "$root_prefix/$my_name");
             } elseif (pathinfo($path, PATHINFO_EXTENSION) === 'php') {
                 $file_cmd[] = "{ " . implode(";", [
                         $this->strHandler->makeRstTitleCmd($my_name, '-'),
-                        $this->strHandler->convertRstCmd($path),
+                        $this->strHandler->convertRstCmd("$this->root_dir/vendor/doxphp/doxphp/bin", $path),
                         $this->strHandler->addNewlineCmd()
-                    ]) . ";}>> " . $this->strHandler->makeIdxRstFilePath($root_prefix);
+                    ]) . ";}>> " . $this->strHandler->makeIdxRstFilePath("$this->doc_dir/$root_prefix");
 
                 $this->progressBar->addProgress();
             }
         }
 
         if (!$first_dir) {
-            exec("echo \"\" >> " . $this->strHandler->makeIdxRstFilePath($root_prefix));
+            exec("echo \"\" >> " . $this->strHandler->makeIdxRstFilePath("$this->doc_dir/$root_prefix"));
         }
 
         foreach ($file_cmd as $cmd)

@@ -24,7 +24,7 @@ class StringHandler
      */
     public function makeIdxRstFilePath(string $prefix): string
     {
-        return DOC_DIR . "$prefix/$this->dir_doc_name.rst";
+        return "$prefix/$this->dir_doc_name.rst";
     }
 
     /**
@@ -55,12 +55,13 @@ class StringHandler
     }
 
     /**
+     * @param string $doxphp_bin
      * @param string $target_php
      * @return string
      */
-    public function convertRstCmd(string $target_php): string
+    public function convertRstCmd(string $doxphp_bin, string $target_php): string
     {
-        return DOXPHP_BIN . "/doxphp < $target_php | " . DOXPHP_BIN . "/doxphp2sphinx";
+        return "$doxphp_bin/doxphp < $target_php | $doxphp_bin/doxphp2sphinx";
     }
 
     /**

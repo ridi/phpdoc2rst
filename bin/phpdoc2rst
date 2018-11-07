@@ -8,9 +8,9 @@ use PhpDoc2Rst\Handler\FileHandler;
 use PhpDoc2Rst\Util\InputInspector;
 
 try {
-    InputInspector::initialize($argv);
+    InputInspector::validate($argv);
 
-    $handler = new FileHandler();
+    $handler = new FileHandler($argv[1]);
     $handler->convertDocsToRsts();
 } catch (Exception $e) {
     echo $e->getMessage()."\n";
