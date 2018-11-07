@@ -1,14 +1,18 @@
 #!/usr/bin/env php
 <?php
+declare(strict_types=1);
 
-require_once __DIR__.'/../lib/Util/Constant.php';
-require_once LIB_DIR.'/Handler/FileHandler.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use PhpDoc2Rst\Handler\FileHandler;
+use PhpDoc2Rst\Util\InputInspector;
 
 try {
-    $handler = new \Handler\FileHandler();
+    InputInspector::initialize($argv);
+
+    $handler = new FileHandler();
     $handler->convertDocsToRsts();
 } catch (Exception $e) {
-    echo $e->getMessage();
-    echo $e->getTraceAsString();
+    echo $e->getMessage()."\n";
     exit(1);
 }

@@ -16,5 +16,10 @@
     "php": "~7.1.0",
     "doxphp/doxphp": "^0.2.1",
     "guiguiboy/php-cli-progress-bar": "^0.0.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "PhpDoc2Rst\\": "lib/"
+    }
   }
 }
