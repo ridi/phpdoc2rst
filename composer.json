@@ -1,25 +1,37 @@
 {
-  "name": "ridibooks/phpdoc2rst",
+  "name": "ridi/phpdoc2rst",
   "type": "library",
+  "description": "Convert PHPDoc to Rst with directory structure.",
+  "version": "0.0.3",
+  "authors": [
+    {
+      "name": "스토어팀 백엔드 파트",
+      "email": "backend.part@ridi.com",
+      "role": "owner"
+    },
+    {
+      "name": "양지웅",
+      "email": "jw.yang@ridi.com",
+      "role": "maintainer"
+    }
+  ],
   "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "PhpDoc2Rst\\": "lib/"
+    }
+  },
   "bin": ["bin/phpdoc2rst"],
+  "minimum-stability": "dev",
   "repositories": [
     {
       "type": "vcs",
       "url": "https://github.com/ridi/doxphp.git"
     }
   ],
-  "description": "convert doxphp to rst with directory structure.",
-  "version": "0.0.3",
-  "minimum-stability": "dev",
   "require": {
     "php": "~7.1.0",
     "doxphp/doxphp": "^0.2.1",
     "guiguiboy/php-cli-progress-bar": "^0.0.4"
-  },
-  "autoload": {
-    "psr-4": {
-      "PhpDoc2Rst\\": "lib/"
-    }
   }
 }
