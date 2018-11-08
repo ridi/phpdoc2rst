@@ -23,7 +23,7 @@ class ProgressBar
      */
     public function __construct(string $src_path)
     {
-        $this->progressBar = $this->initProgressBar($src_path);
+        $this->initProgressBar($src_path);
     }
 
     /**
@@ -37,9 +37,8 @@ class ProgressBar
 
     /**
      * @param string $src_path
-     * @return Manager
      */
-    private function initProgressBar($src_path): Manager
+    private function initProgressBar($src_path): void
     {
         $total_php_cnt = count(
             array_filter(
@@ -50,6 +49,6 @@ class ProgressBar
             )
         );
 
-        return new Manager(0, $total_php_cnt, 50, '█', ' ', '▋');
+        $this->progressBar = new Manager(0, $total_php_cnt, 50, '█', ' ', '▋');
     }
 }
