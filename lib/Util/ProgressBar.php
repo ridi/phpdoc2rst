@@ -26,6 +26,9 @@ class ProgressBar
         $this->progressBar = $this->initProgressBar($src_path);
     }
 
+    /**
+     * @throws \InvalidArgumentException
+     */
     public function addProgress(): void
     {
         $this->progressBar->update($this->file_cnt);
@@ -38,16 +41,14 @@ class ProgressBar
      */
     private function initProgressBar($src_path): Manager
     {
-        $total_php_cnt = 0;
-
-        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($src_path)) as $filename)
-        {
-            if ($filename->getExtension() !== "php") {
-                continue;
-            }
-
-            $total_php_cnt += 1;
-        }
+        $total_php_cnt = count(
+            array_filter(
+                iterator_to_array(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($src_path))),
+                function (\SplFileInfo $file): bool {
+                    return $file->getExtension() === 'php';
+                }
+            )
+        );
 
         return new Manager(0, $total_php_cnt, 50, '█', ' ', '▋');
     }

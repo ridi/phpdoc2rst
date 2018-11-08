@@ -8,23 +8,15 @@ class StringHandler
     /**
      * @var string
      */
-    private $dir_doc_name = 'idx';
-
-    /**
-     * @param string $dir_doc_name
-     */
-    public function setDirDocName(string $dir_doc_name): void
-    {
-        $this->dir_doc_name = $dir_doc_name;
-    }
+    private const DIR_DOC_NAME = 'idx';
 
     /**
      * @param string $prefix
      * @return string
      */
-    public function makeIdxRstFilePath(string $prefix): string
+    public static function makeIdxRstFilePath(string $prefix): string
     {
-        return "$prefix/$this->dir_doc_name.rst";
+        return "$prefix/".self::DIR_DOC_NAME.".rst";
     }
 
     /**
@@ -32,7 +24,7 @@ class StringHandler
      * @param string $underline_type
      * @return string
      */
-    public function makeRstTitleCmd(string $name, string $underline_type = '='): string
+    public static function makeRstTitleCmd(string $name, string $underline_type = '='): string
     {
         return "echo \"$name\n" . str_repeat($underline_type, strlen($name)) . "\n\"";
     }
@@ -42,12 +34,11 @@ class StringHandler
      * @param bool $first_dir
      * @return string
      */
-    public function addRstListChildCmd(string $name, bool &$first_dir): string
+    public static function addRstListChildCmd(string $name, bool $first_dir): string
     {
-        $list_child = "   $name/$this->dir_doc_name";
+        $list_child = "   $name/".self::DIR_DOC_NAME;
 
         if ($first_dir) {
-            $first_dir = false;
             $list_child = ".. toctree::\n   :maxdepth: 2\n\n$list_child";
         }
 
@@ -59,7 +50,7 @@ class StringHandler
      * @param string $target_php
      * @return string
      */
-    public function convertRstCmd(string $doxphp_bin, string $target_php): string
+    public static function convertRstCmd(string $doxphp_bin, string $target_php): string
     {
         return "$doxphp_bin/doxphp < $target_php | $doxphp_bin/doxphp2sphinx";
     }
@@ -67,7 +58,7 @@ class StringHandler
     /**
      * @return string
      */
-    public function addNewlineCmd(): string
+    public static function addNewlineCmd(): string
     {
         return "echo \"\n\"";
     }
