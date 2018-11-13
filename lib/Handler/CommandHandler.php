@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace PhpDoc2Rst\Handler;
 
-class StringHandler
+class CommandHandler
 {
     /**
      * @var string
@@ -56,10 +56,48 @@ class StringHandler
     }
 
     /**
+     * @param string $option_words
      * @return string
      */
-    public static function addNewlineCmd(): string
+    public static function addNewlineCmd(string $option_words = ""): string
     {
-        return "echo \"\n\"";
+        return "echo \"$option_words\"";
+    }
+
+    /**
+     * @param string $rst_title
+     * @param string $target_rst_path
+     */
+    public static function execMakeDirRstCmd(string $rst_title, string $target_rst_path): void
+    {
+        exec(self::makeRstTitleCmd($rst_title) . " > " .
+            self::makeIdxRstFilePath($target_rst_path));
+    }
+
+    /**
+     * @param string $name
+     * @param bool $first_dir
+     * @param string $parent_path
+     */
+    public static function execAddToParentDirRstCmd(string $name, bool $first_dir, string $parent_path): void
+    {
+        exec(CommandHandler::addRstListChildCmd($name, $first_dir) . " >> " .
+            CommandHandler::makeIdxRstFilePath($parent_path));
+    }
+
+    /**
+     * @param $name
+     * @param $root_dir
+     * @param $path
+     * @param $parent_path
+     * @return string
+     */
+    public static function makePhpRstCmd($name, $root_dir, $path, $parent_path): string
+    {
+        return "{ " . implode(";", [
+                self::makeRstTitleCmd($name, '-'),
+                self::convertRstCmd("$root_dir/vendor/doxphp/doxphp/bin", $path),
+                self::addNewlineCmd("\n")
+            ]) . ";}>> " . CommandHandler::makeIdxRstFilePath($parent_path);
     }
 }

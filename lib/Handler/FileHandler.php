@@ -20,7 +20,7 @@ class FileHandler
     /**
      * @var string
      */
-    private $target_src = "src";
+    private $target_src = "src/Ridibooks/Api";
 
     /**
      * @var ProgressBar
@@ -68,8 +68,7 @@ class FileHandler
     private function initRootDir(): void
     {
         $this->makeDirIfNotExist("$this->doc_dir/$this->target_src");
-        exec(StringHandler::makeRstTitleCmd($this->target_src) . " > " .
-            StringHandler::makeIdxRstFilePath("$this->doc_dir/$this->target_src"));
+        CommandHandler::execMakeDirRstCmd($this->target_src, "$this->doc_dir/$this->target_src");
     }
 
     /**
@@ -81,6 +80,7 @@ class FileHandler
     {
         $file_commands = [];
         $first_dir = true;
+        $docs_parent_dir = "$this->doc_dir/$root_prefix";
 
         $files = scandir($dir);
 
@@ -90,28 +90,21 @@ class FileHandler
                 $my_name = pathinfo($path, PATHINFO_FILENAME);
 
                 if (is_dir($path) && $file_name !== "." && $file_name !== "..") {
-                    $this->makeDirIfNotExist("$this->doc_dir/$root_prefix/$my_name");
+                    $this->makeDirIfNotExist("$docs_parent_dir/$my_name");
 
-                    exec(StringHandler::makeRstTitleCmd("$root_prefix/$my_name") . " > " .
-                        StringHandler::makeIdxRstFilePath("$this->doc_dir/$root_prefix/$my_name"));
-                    exec(StringHandler::addRstListChildCmd($my_name, $first_dir) . " >> " .
-                        StringHandler::makeIdxRstFilePath("$this->doc_dir/$root_prefix"));
+                    CommandHandler::execMakeDirRstCmd("$root_prefix/$my_name", "$docs_parent_dir/$my_name");
+                    CommandHandler::execAddToParentDirRstCmd($my_name, $first_dir, $docs_parent_dir);
 
                     $first_dir = false;
                     $this->getDirContents($path, "$root_prefix/$my_name");
                 } elseif (pathinfo($path, PATHINFO_EXTENSION) === 'php') {
-                    $file_commands[] = "{ " . implode(";", [
-                            StringHandler::makeRstTitleCmd($my_name, '-'),
-                            StringHandler::convertRstCmd("$this->root_dir/vendor/doxphp/doxphp/bin", $path),
-                            StringHandler::addNewlineCmd()
-                        ]) . ";}>> " . StringHandler::makeIdxRstFilePath("$this->doc_dir/$root_prefix");
-
+                    $file_commands[] = CommandHandler::makePhpRstCmd($my_name, $this->root_dir, $path, $docs_parent_dir);
                     $this->progressBar->addProgress();
                 }
             }
 
             if (!$first_dir) {
-                exec("echo \"\" >> " . StringHandler::makeIdxRstFilePath("$this->doc_dir/$root_prefix"));
+                exec(CommandHandler::addNewlineCmd() . " >> " . CommandHandler::makeIdxRstFilePath($docs_parent_dir));
             }
 
             foreach ($file_commands as $cmd) {

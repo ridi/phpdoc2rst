@@ -9,9 +9,10 @@ class InputInspector
 {
     /**
      * @param array $argv
+     * @return string
      * @throws Exception
      */
-    public static function validate(array $argv): void
+    public static function getRootDir(array $argv): string
     {
         if (count($argv) <= 1) {
             throw new Exception("Target directory path is necessary for docs.");
@@ -20,16 +21,7 @@ class InputInspector
         } elseif (!is_dir($argv[1])) {
             throw new Exception("Target path is not directory.");
         }
-    }
 
-    /**
-     * @param array $argv
-     * @return string
-     * @throws Exception
-     */
-    public static function getRootDir(array $argv): string
-    {
-        self::validate($argv);
         return $argv[1];
     }
 }
