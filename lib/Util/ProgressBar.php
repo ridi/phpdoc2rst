@@ -7,38 +7,11 @@ use ProgressBar\Manager;
 
 class ProgressBar
 {
-
-    /**
-     * @var Manager
-     */
-    private $progressBar;
-
-    /**
-     * @var int
-     */
-    private $file_cnt = 1;
-
     /**
      * @param string $src_path
+     * @return Manager
      */
-    public function __construct(string $src_path)
-    {
-        $this->initProgressBar($src_path);
-    }
-
-    /**
-     * @throws \InvalidArgumentException
-     */
-    public function addProgress(): void
-    {
-        $this->progressBar->update($this->file_cnt);
-        $this->file_cnt += 1;
-    }
-
-    /**
-     * @param string $src_path
-     */
-    private function initProgressBar($src_path): void
+    public static function initProgressBar($src_path): Manager
     {
         $total_php_cnt = count(
             array_filter(
@@ -49,6 +22,6 @@ class ProgressBar
             )
         );
 
-        $this->progressBar = new Manager(0, $total_php_cnt, 50, '█', ' ', '▋');
+        return new Manager(0, $total_php_cnt, 50, '█', ' ', '▋');
     }
 }

@@ -1,6 +1,14 @@
 {
   "name": "ridi/phpdoc2rst",
   "type": "library",
+  "bin": ["bin/phpdoc2rst"],
+  "minimum-stability": "dev",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/ridi/doxphp.git"
+    }
+  ],
   "description": "Convert PHPDoc to Rst with directory structure.",
   "version": "0.0.3",
   "authors": [
@@ -21,17 +29,9 @@
       "PhpDoc2Rst\\": "lib/"
     }
   },
-  "bin": ["bin/phpdoc2rst"],
-  "minimum-stability": "dev",
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/ridi/doxphp.git"
-    }
-  ],
   "require": {
     "php": "~7.1.0",
-    "doxphp/doxphp": "^0.2.1",
+    "doxphp/doxphp": "^0.2.2",
     "guiguiboy/php-cli-progress-bar": "^0.0.4"
   }
 }

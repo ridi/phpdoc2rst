@@ -46,13 +46,13 @@ class CommandHandler
     }
 
     /**
-     * @param string $doxphp_bin
-     * @param string $target_php
+     * @param string $bin_path
+     * @param string $target_php_src
      * @return string
      */
-    public static function convertRstCmd(string $doxphp_bin, string $target_php): string
+    public static function convertRstCmd(string $bin_path, string $target_php_src): string
     {
-        return "$doxphp_bin/doxphp < $target_php | $doxphp_bin/doxphp2sphinx";
+        return "$bin_path/doxphp < $target_php_src | $bin_path/doxphp2sphinx";
     }
 
     /**
@@ -86,17 +86,17 @@ class CommandHandler
     }
 
     /**
-     * @param $name
-     * @param $root_dir
-     * @param $path
+     * @param $rst_title
+     * @param $target_php_src
      * @param $parent_path
+     * @param $bin_path
      * @return string
      */
-    public static function makePhpRstCmd($name, $root_dir, $path, $parent_path): string
+    public static function makePhpRstCmd($rst_title, $target_php_src, $parent_path, $bin_path): string
     {
         return "{ " . implode(";", [
-                self::makeRstTitleCmd($name, '-'),
-                self::convertRstCmd("$root_dir/vendor/doxphp/doxphp/bin", $path),
+                self::makeRstTitleCmd($rst_title, '-'),
+                self::convertRstCmd($bin_path, $target_php_src),
                 self::addNewlineCmd("\n")
             ]) . ";}>> " . CommandHandler::makeIdxRstFilePath($parent_path);
     }

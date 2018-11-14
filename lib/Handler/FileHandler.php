@@ -10,7 +10,7 @@ class FileHandler
     /**
      * @var string
      */
-    private $root_dir;
+    private $source_dir;
 
     /**
      * @var string
@@ -20,23 +20,28 @@ class FileHandler
     /**
      * @var string
      */
-    private $target_src = "src/Ridibooks/Api";
+    private $bin_dir;
 
     /**
-     * @var ProgressBar
+     * @var string
      */
-    private $progressBar;
+    private $last_src_name;
 
     /**
-     * @param string $root_dir
+     * @var \ProgressBar\Manager
      */
-    public function __construct(string $root_dir)
+    private $progressBarManager;
+
+    /**
+     * @param array $target_paths
+     */
+    public function __construct(array $target_paths)
     {
-        $this->root_dir = $root_dir;
-        $this->doc_dir = "$root_dir/docs";
-        $this->progressBar = new ProgressBar("$root_dir/$this->target_src");
-
+        [$this->bin_dir, $this->source_dir, $this->doc_dir] = $target_paths;
+        $this->last_src_name = pathinfo($this->source_dir, PATHINFO_FILENAME);
         $this->initRootDir();
+
+        $this->progressBarManager = ProgressBar::initProgressBar($this->source_dir);
     }
 
     /**
@@ -44,8 +49,8 @@ class FileHandler
      */
     public function convertDocsToRsts(): void
     {
-        if (is_dir("$this->root_dir/$this->target_src")) {
-            $this->getDirContents("$this->root_dir/$this->target_src", $this->target_src);
+        if (is_dir($this->source_dir)) {
+            $this->getDirContents($this->source_dir, $this->last_src_name);
         }
     }
 
@@ -59,16 +64,20 @@ class FileHandler
         foreach (explode("/", $path) as $each_dir) {
             $top_path .= "$each_dir/";
 
-            if (!realpath($top_path) && !file_exists($top_path) && !is_dir($top_path) && pathinfo($top_path, PATHINFO_EXTENSION) === "") {
-                mkdir($top_path);
+            if (!is_dir($top_path)) {
+                if (file_exists($top_path)) {
+                    throw new Exception("Target path directory includes file name.");
+                } elseif (!realpath($top_path)) {
+                    mkdir($top_path);
+                }
             }
         }
     }
 
     private function initRootDir(): void
     {
-        $this->makeDirIfNotExist("$this->doc_dir/$this->target_src");
-        CommandHandler::execMakeDirRstCmd($this->target_src, "$this->doc_dir/$this->target_src");
+        $this->makeDirIfNotExist("$this->doc_dir/$this->last_src_name");
+        CommandHandler::execMakeDirRstCmd($this->last_src_name, "$this->doc_dir/$this->last_src_name");
     }
 
     /**
@@ -98,8 +107,8 @@ class FileHandler
                     $first_dir = false;
                     $this->getDirContents($path, "$root_prefix/$my_name");
                 } elseif (pathinfo($path, PATHINFO_EXTENSION) === 'php') {
-                    $file_commands[] = CommandHandler::makePhpRstCmd($my_name, $this->root_dir, $path, $docs_parent_dir);
-                    $this->progressBar->addProgress();
+                    $file_commands[] = CommandHandler::makePhpRstCmd($my_name, $path, $docs_parent_dir, $this->bin_dir);
+                    $this->progressBarManager->advance();
                 }
             }
 
