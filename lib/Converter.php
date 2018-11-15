@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace PhpDoc2Rst\Handler;
+namespace PhpDoc2Rst;
 
 use Exception;
+use PhpDoc2Rst\Handler\Command;
 use PhpDoc2Rst\Util\ProgressBar;
 
 class Converter
@@ -43,18 +44,18 @@ class Converter
         $this->bin_dir_path = $bin_dir_path;
         $this->source_dir_path = $source_dir_path;
         $this->doc_dir_path = $doc_dir_path;
-
         $this->last_src_name = pathinfo($source_dir_path, PATHINFO_FILENAME);
-        $this->initRootDir();
-
-        $this->progressBarManager = ProgressBar::create($source_dir_path);
     }
 
     /**
      * @throws \InvalidArgumentException
+     * @throws Exception
      */
     public function execute(): void
     {
+        $this->initRootDir();
+        $this->progressBarManager = ProgressBar::create($this->source_dir_path);
+
         if (is_dir($this->source_dir_path)) {
             $this->getDirContents($this->source_dir_path, $this->last_src_name);
         }
@@ -81,6 +82,9 @@ class Converter
         }
     }
 
+    /**
+     * @throws Exception
+     */
     private function initRootDir(): void
     {
         $this->makeDirIfNotExist("$this->doc_dir_path/$this->last_src_name");
