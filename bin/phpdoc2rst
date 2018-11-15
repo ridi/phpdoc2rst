@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use PhpDoc2Rst\Handler\FileHandler;
+use PhpDoc2Rst\Handler\Converter;
 use PhpDoc2Rst\Util\InputInspector;
 
 try {
-    $target_paths = InputInspector::getTargetDirPaths($argv);
+    $target_path_list = InputInspector::getTargetDirPaths($argv);
 
-    $handler = new FileHandler($target_paths);
-    $handler->convertDocsToRsts();
+    $converter = new Converter(
+        $target_path_list["bin_dir_path"],
+        $target_path_list["source_dir_path"],
+        $target_path_list["doc_dir_path"]
+    );
+    $converter->execute();
 } catch (Exception $e) {
     echo $e->getMessage()."\n";
     exit(1);

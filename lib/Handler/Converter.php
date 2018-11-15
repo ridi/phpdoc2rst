@@ -3,24 +3,25 @@ declare(strict_types=1);
 
 namespace PhpDoc2Rst\Handler;
 
+use Exception;
 use PhpDoc2Rst\Util\ProgressBar;
 
-class FileHandler
+class Converter
 {
     /**
      * @var string
      */
-    private $source_dir;
+    private $source_dir_path;
 
     /**
      * @var string
      */
-    private $doc_dir;
+    private $doc_dir_path;
 
     /**
      * @var string
      */
-    private $bin_dir;
+    private $bin_dir_path;
 
     /**
      * @var string
@@ -33,29 +34,35 @@ class FileHandler
     private $progressBarManager;
 
     /**
-     * @param array $target_paths
+     * @param string $bin_dir_path
+     * @param string $source_dir_path
+     * @param string $doc_dir_path
      */
-    public function __construct(array $target_paths)
+    public function __construct(string $bin_dir_path, string $source_dir_path, string $doc_dir_path)
     {
-        [$this->bin_dir, $this->source_dir, $this->doc_dir] = $target_paths;
-        $this->last_src_name = pathinfo($this->source_dir, PATHINFO_FILENAME);
+        $this->bin_dir_path = $bin_dir_path;
+        $this->source_dir_path = $source_dir_path;
+        $this->doc_dir_path = $doc_dir_path;
+
+        $this->last_src_name = pathinfo($source_dir_path, PATHINFO_FILENAME);
         $this->initRootDir();
 
-        $this->progressBarManager = ProgressBar::initProgressBar($this->source_dir);
+        $this->progressBarManager = ProgressBar::create($source_dir_path);
     }
 
     /**
      * @throws \InvalidArgumentException
      */
-    public function convertDocsToRsts(): void
+    public function execute(): void
     {
-        if (is_dir($this->source_dir)) {
-            $this->getDirContents($this->source_dir, $this->last_src_name);
+        if (is_dir($this->source_dir_path)) {
+            $this->getDirContents($this->source_dir_path, $this->last_src_name);
         }
     }
 
     /**
      * @param string $path
+     * @throws Exception
      */
     public function makeDirIfNotExist(string $path): void
     {
@@ -76,8 +83,8 @@ class FileHandler
 
     private function initRootDir(): void
     {
-        $this->makeDirIfNotExist("$this->doc_dir/$this->last_src_name");
-        CommandHandler::execMakeDirRstCmd($this->last_src_name, "$this->doc_dir/$this->last_src_name");
+        $this->makeDirIfNotExist("$this->doc_dir_path/$this->last_src_name");
+        Command::execMakeDirRstCmd($this->last_src_name, "$this->doc_dir_path/$this->last_src_name");
     }
 
     /**
@@ -89,7 +96,7 @@ class FileHandler
     {
         $file_commands = [];
         $first_dir = true;
-        $docs_parent_dir = "$this->doc_dir/$root_prefix";
+        $docs_parent_dir = "$this->doc_dir_path/$root_prefix";
 
         $files = scandir($dir);
 
@@ -101,19 +108,19 @@ class FileHandler
                 if (is_dir($path) && $file_name !== "." && $file_name !== "..") {
                     $this->makeDirIfNotExist("$docs_parent_dir/$my_name");
 
-                    CommandHandler::execMakeDirRstCmd("$root_prefix/$my_name", "$docs_parent_dir/$my_name");
-                    CommandHandler::execAddToParentDirRstCmd($my_name, $first_dir, $docs_parent_dir);
+                    Command::execMakeDirRstCmd("$root_prefix/$my_name", "$docs_parent_dir/$my_name");
+                    Command::execAddToParentDirRstCmd($my_name, $first_dir, $docs_parent_dir);
 
                     $first_dir = false;
                     $this->getDirContents($path, "$root_prefix/$my_name");
                 } elseif (pathinfo($path, PATHINFO_EXTENSION) === 'php') {
-                    $file_commands[] = CommandHandler::makePhpRstCmd($my_name, $path, $docs_parent_dir, $this->bin_dir);
+                    $file_commands[] = Command::makePhpRstCmd($my_name, $path, $docs_parent_dir, $this->bin_dir_path);
                     $this->progressBarManager->advance();
                 }
             }
 
             if (!$first_dir) {
-                exec(CommandHandler::addNewlineCmd() . " >> " . CommandHandler::makeIdxRstFilePath($docs_parent_dir));
+                exec(Command::addNewlineCmd() . " >> " . Command::makeIdxRstFilePath($docs_parent_dir));
             }
 
             foreach ($file_commands as $cmd) {

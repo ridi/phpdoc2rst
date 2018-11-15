@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace PhpDoc2Rst\Handler;
 
-class CommandHandler
+class Command
 {
     /**
      * @var string
@@ -81,8 +81,8 @@ class CommandHandler
      */
     public static function execAddToParentDirRstCmd(string $name, bool $first_dir, string $parent_path): void
     {
-        exec(CommandHandler::addRstListChildCmd($name, $first_dir) . " >> " .
-            CommandHandler::makeIdxRstFilePath($parent_path));
+        exec(Command::addRstListChildCmd($name, $first_dir) . " >> " .
+            Command::makeIdxRstFilePath($parent_path));
     }
 
     /**
@@ -98,6 +98,6 @@ class CommandHandler
                 self::makeRstTitleCmd($rst_title, '-'),
                 self::convertRstCmd($bin_path, $target_php_src),
                 self::addNewlineCmd("\n")
-            ]) . ";}>> " . CommandHandler::makeIdxRstFilePath($parent_path);
+            ]) . ";}>> " . Command::makeIdxRstFilePath($parent_path);
     }
 }

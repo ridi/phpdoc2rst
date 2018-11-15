@@ -11,7 +11,7 @@ class ProgressBar
      * @param string $src_path
      * @return Manager
      */
-    public static function initProgressBar($src_path): Manager
+    public static function create($src_path): Manager
     {
         $total_php_cnt = count(
             array_filter(

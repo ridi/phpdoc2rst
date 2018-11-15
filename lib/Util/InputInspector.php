@@ -9,7 +9,7 @@ class InputInspector
 {
     /**
      * @param string[] $argv
-     * @return string[]
+     * @return array
      * @throws Exception
      */
     public static function getTargetDirPaths(array $argv): array
@@ -28,6 +28,10 @@ class InputInspector
             }
         }
 
-        return [realpath(dirname($argv[0])), realpath($argv[1]), realpath($argv[2])];
+        return [
+            "bin_dir_path" => realpath(dirname($argv[0])),
+            "source_dir_path" => realpath($argv[1]),
+            "doc_dir_path" => realpath($argv[2])
+        ];
     }
 }
