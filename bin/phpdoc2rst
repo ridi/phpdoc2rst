@@ -7,6 +7,15 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use PhpDoc2Rst\Converter;
 use PhpDoc2Rst\Util\InputInspector;
 
+if (is_dir($vendor = __DIR__ . '/../vendor')) {
+    require_once $vendor . '/autoload.php';
+} elseif (is_dir($vendor = __DIR__ . '/../../..')) {
+    require $vendor . '/autoload.php';
+} else {
+    echo "Autoload file was not found for project dependencies reason.\n";
+    exit(1);
+}
+
 try {
     $target_path_list = InputInspector::getTargetDirPaths($argv);
 
