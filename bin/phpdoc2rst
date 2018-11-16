@@ -1,0 +1,31 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use PhpDoc2Rst\Converter;
+use PhpDoc2Rst\Util\InputInspector;
+
+if (is_dir($vendor = __DIR__ . '/../vendor')) {
+    require_once $vendor . '/autoload.php';
+} elseif (is_dir($vendor = __DIR__ . '/../../..')) {
+    require $vendor . '/autoload.php';
+} else {
+    echo "Autoload file was not found for project dependencies reason.\n";
+    exit(1);
+}
+
+try {
+    $target_path_list = InputInspector::getTargetDirPaths($argv);
+
+    $converter = new Converter(
+        $target_path_list["bin_dir_path"],
+        $target_path_list["source_dir_path"],
+        $target_path_list["doc_dir_path"]
+    );
+    $converter->execute();
+} catch (Exception $e) {
+    echo $e->getMessage()."\n";
+    exit(1);
+}
