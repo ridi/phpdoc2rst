@@ -30,24 +30,9 @@ class Converter
     private $last_src_name;
 
     /**
-     * @var int
+     * @var ProgressBar
      */
-    private $total_php_file_cnt;
-
-    /**
-     * @var int
-     */
-    private $converted_php_file_cnt;
-
-    /**
-     * @var \ProgressBar\Manager
-     */
-    private $progressBarManager;
-
-    /**
-     * @var int
-     */
-    private $progressPercent = 0;
+    private $progressBar;
 
     /**
      * @param string $bin_dir_path
@@ -60,7 +45,6 @@ class Converter
         $this->source_dir_path = $source_dir_path;
         $this->doc_dir_path = $doc_dir_path;
         $this->last_src_name = pathinfo($source_dir_path, PATHINFO_FILENAME);
-        $this->total_php_file_cnt = $this->countPhpFiles($source_dir_path);
     }
 
     /**
@@ -70,7 +54,7 @@ class Converter
     public function execute(): void
     {
         $this->initRootDir();
-        $this->progressBarManager = ProgressBar::create($this->total_php_file_cnt);
+        $this->progressBar = new ProgressBar($this->countPhpFiles($this->source_dir_path));
 
         if (is_dir($this->source_dir_path)) {
             $this->getDirContents($this->source_dir_path, $this->last_src_name);
@@ -135,12 +119,7 @@ class Converter
                     $this->getDirContents($path, "$root_prefix/$my_name");
                 } elseif (pathinfo($path, PATHINFO_EXTENSION) === 'php') {
                     $file_commands[] = Command::makePhpRstCmd($my_name, $path, $docs_parent_dir, $this->bin_dir_path);
-                    $this->converted_php_file_cnt += 1;
-                    $this->progressPercent = ProgressBar::updateProgressBar(
-                        $this->total_php_file_cnt,
-                        $this->converted_php_file_cnt,
-                        $this->progressBarManager,
-                        $this->progressPercent);
+                    $this->progressBar->advance();
                 }
             }
 
@@ -158,7 +137,8 @@ class Converter
      * @param string $src_path
      * @return int
      */
-    private function countPhpFiles(string $src_path) {
+    private function countPhpFiles(string $src_path)
+    {
         return count(
             array_filter(
                 iterator_to_array(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($src_path))),

@@ -13,28 +13,44 @@ class ProgressBar
     private const INTERVAL_PERC = 10;
 
     /**
-     * @param int $total_php_cnt
-     * @return Manager
+     * @var Manager
      */
-    public static function create($total_php_cnt): Manager
+    private $manager;
+
+    /**
+     * @var int
+     */
+    private $total_php_cnt;
+
+    /**
+     * @var int
+     */
+    private $proceed_php_cnt = 0;
+
+    /**
+     * @var int
+     */
+    private $current_interval_perc = 0;
+
+    /**
+     * @param int $total_php_cnt
+     */
+    public function __construct($total_php_cnt)
     {
-        return new Manager(0, $total_php_cnt, 50, '█', ' ', '▋');
+        $this->total_php_cnt = $total_php_cnt;
+        $this->manager = new Manager(0, $total_php_cnt, 50, '█', ' ', '▋');
     }
 
     /**
-     * @param int $total_cnt
-     * @param int $current_cnt
-     * @param Manager $manager
-     * @param int $current_perc
-     * @return int
      * @throws \InvalidArgumentException
      */
-    public static function updateProgressBar(int $total_cnt, int $current_cnt, Manager $manager, int $current_perc): int {
-        if (($current_cnt/$total_cnt) >= $current_perc/100) {
-            $manager->update($current_cnt);
-            return ($current_perc + self::INTERVAL_PERC);
+    public function advance()
+    {
+        $current_perc = 100 * $this->proceed_php_cnt / $this->total_php_cnt;
+        if ($current_perc >= $this->current_interval_perc) {
+            $this->manager->update($this->proceed_php_cnt);
+            $this->current_interval_perc += self::INTERVAL_PERC;
         }
-
-        return $current_perc;
+        $this->proceed_php_cnt += 1;
     }
 }
