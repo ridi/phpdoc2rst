@@ -54,7 +54,7 @@ class Converter
     public function execute(): void
     {
         $this->initRootDir();
-        $this->progressBar = new ProgressBar($this->countPhpFiles($this->source_dir_path));
+        $this->progressBar = new ProgressBar($this->countPhpFiles());
 
         if (is_dir($this->source_dir_path)) {
             $this->getDirContents($this->source_dir_path, $this->last_src_name);
@@ -134,14 +134,13 @@ class Converter
     }
 
     /**
-     * @param string $src_path
      * @return int
      */
-    private function countPhpFiles(string $src_path)
+    private function countPhpFiles(): int
     {
         return count(
             array_filter(
-                iterator_to_array(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($src_path))),
+                iterator_to_array(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->source_dir_path))),
                 function (\SplFileInfo $file): bool {
                     return $file->getExtension() === 'php';
                 }

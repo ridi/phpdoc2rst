@@ -35,7 +35,7 @@ class ProgressBar
     /**
      * @param int $total_php_cnt
      */
-    public function __construct($total_php_cnt)
+    public function __construct(int $total_php_cnt)
     {
         $this->total_php_cnt = $total_php_cnt;
         $this->manager = new Manager(0, $total_php_cnt, 50, '█', ' ', '▋');
@@ -44,13 +44,14 @@ class ProgressBar
     /**
      * @throws \InvalidArgumentException
      */
-    public function advance()
+    public function advance(): void
     {
+        $this->proceed_php_cnt += 1;
+
         $current_perc = 100 * $this->proceed_php_cnt / $this->total_php_cnt;
         if ($current_perc >= $this->current_interval_perc) {
             $this->manager->update($this->proceed_php_cnt);
             $this->current_interval_perc += self::INTERVAL_PERC;
         }
-        $this->proceed_php_cnt += 1;
     }
 }
