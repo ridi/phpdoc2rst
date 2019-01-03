@@ -30,7 +30,7 @@ class ProgressBar
     /**
      * @var int
      */
-    private $current_percent = 0;
+    private $next_indicated_percent = 0;
 
     /**
      * @param int $total_cnt
@@ -49,9 +49,9 @@ class ProgressBar
         $this->proceeded_cnt += 1;
 
         $calculated_percent = 100 * $this->proceeded_cnt / $this->total_cnt;
-        if ($calculated_percent >= $this->current_percent) {
+        if ($calculated_percent >= $this->next_indicated_percent) {
             $this->manager->update($this->proceeded_cnt);
-            $this->current_percent += self::INTERVAL_PERCENT;
+            $this->next_indicated_percent += self::INTERVAL_PERCENT;
         }
     }
 }
