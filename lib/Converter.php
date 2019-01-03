@@ -107,18 +107,18 @@ class Converter
         if ($files !== false) {
             foreach ($files as $file_name) {
                 $target_file_path = realpath("$source_dir/$file_name");
-                $file_name = pathinfo($target_file_path, PATHINFO_FILENAME);
+                $target_name = pathinfo($target_file_path, PATHINFO_FILENAME);
 
                 if (is_dir($target_file_path) && $file_name !== "." && $file_name !== "..") {
-                    $this->makeDirIfNotExist("$docs_parent_dir/$file_name");
+                    $this->makeDirIfNotExist("$docs_parent_dir/$target_name");
 
-                    Command::execMakeDirRstCmd("$root_prefix/$file_name", "$docs_parent_dir/$file_name");
-                    Command::execAddToParentDirRstCmd($file_name, $first_dir, $docs_parent_dir);
+                    Command::execMakeDirRstCmd("$root_prefix/$target_name", "$docs_parent_dir/$target_name");
+                    Command::execAddToParentDirRstCmd($target_name, $first_dir, $docs_parent_dir);
 
                     $first_dir = false;
-                    $this->makeRst($target_file_path, "$root_prefix/$file_name");
+                    $this->makeRst($target_file_path, "$root_prefix/$target_name");
                 } elseif (pathinfo($target_file_path, PATHINFO_EXTENSION) === 'php') {
-                    $file_commands[] = Command::makePhpRstCmd($file_name, $target_file_path, $docs_parent_dir, $this->bin_dir_path);
+                    $file_commands[] = Command::makePhpRstCmd($target_name, $target_file_path, $docs_parent_dir, $this->bin_dir_path);
                     $this->progressBar->advance();
                 }
             }
