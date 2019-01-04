@@ -8,20 +8,50 @@ use ProgressBar\Manager;
 class ProgressBar
 {
     /**
-     * @param string $src_path
-     * @return Manager
+     * @var int
      */
-    public static function create($src_path): Manager
-    {
-        $total_php_cnt = count(
-            array_filter(
-                iterator_to_array(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($src_path))),
-                function (\SplFileInfo $file): bool {
-                    return $file->getExtension() === 'php';
-                }
-            )
-        );
+    private const INTERVAL_PERCENT = 10;
 
-        return new Manager(0, $total_php_cnt, 50, '█', ' ', '▋');
+    /**
+     * @var Manager
+     */
+    private $manager;
+
+    /**
+     * @var int
+     */
+    private $total_cnt;
+
+    /**
+     * @var int
+     */
+    private $proceeded_cnt = 0;
+
+    /**
+     * @var int
+     */
+    private $next_indicated_percent = 0;
+
+    /**
+     * @param int $total_cnt
+     */
+    public function __construct(int $total_cnt)
+    {
+        $this->total_cnt = $total_cnt;
+        $this->manager = new Manager(0, $total_cnt, 50, '█', ' ', '▋');
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    public function advance(): void
+    {
+        $this->proceeded_cnt += 1;
+
+        $calculated_percent = 100 * $this->proceeded_cnt / $this->total_cnt;
+        if ($calculated_percent >= $this->next_indicated_percent) {
+            $this->manager->update($this->proceeded_cnt);
+            $this->next_indicated_percent += self::INTERVAL_PERCENT;
+        }
     }
 }

@@ -30,9 +30,9 @@ class Converter
     private $last_src_name;
 
     /**
-     * @var \ProgressBar\Manager
+     * @var ProgressBar
      */
-    private $progressBarManager;
+    private $progressBar;
 
     /**
      * @param string $bin_dir_path
@@ -54,10 +54,10 @@ class Converter
     public function execute(): void
     {
         $this->initRootDir();
-        $this->progressBarManager = ProgressBar::create($this->source_dir_path);
+        $this->progressBar = new ProgressBar($this->countPhpFiles());
 
         if (is_dir($this->source_dir_path)) {
-            $this->getDirContents($this->source_dir_path, $this->last_src_name);
+            $this->makeRst($this->source_dir_path, $this->last_src_name);
         }
     }
 
@@ -92,34 +92,34 @@ class Converter
     }
 
     /**
-     * @param string $dir
+     * @param string $source_dir
      * @param string $root_prefix
      * @throws \InvalidArgumentException
      */
-    private function getDirContents(string $dir, string $root_prefix): void
+    private function makeRst(string $source_dir, string $root_prefix): void
     {
         $file_commands = [];
         $first_dir = true;
         $docs_parent_dir = "$this->doc_dir_path/$root_prefix";
 
-        $files = scandir($dir);
+        $files = scandir($source_dir);
 
         if ($files !== false) {
             foreach ($files as $file_name) {
-                $path = realpath("$dir/$file_name");
-                $my_name = pathinfo($path, PATHINFO_FILENAME);
+                $target_file_path = realpath("$source_dir/$file_name");
+                $target_name = pathinfo($target_file_path, PATHINFO_FILENAME);
 
-                if (is_dir($path) && $file_name !== "." && $file_name !== "..") {
-                    $this->makeDirIfNotExist("$docs_parent_dir/$my_name");
+                if (is_dir($target_file_path) && $file_name !== "." && $file_name !== "..") {
+                    $this->makeDirIfNotExist("$docs_parent_dir/$target_name");
 
-                    Command::execMakeDirRstCmd("$root_prefix/$my_name", "$docs_parent_dir/$my_name");
-                    Command::execAddToParentDirRstCmd($my_name, $first_dir, $docs_parent_dir);
+                    Command::execMakeDirRstCmd("$root_prefix/$target_name", "$docs_parent_dir/$target_name");
+                    Command::execAddToParentDirRstCmd($target_name, $first_dir, $docs_parent_dir);
 
                     $first_dir = false;
-                    $this->getDirContents($path, "$root_prefix/$my_name");
-                } elseif (pathinfo($path, PATHINFO_EXTENSION) === 'php') {
-                    $file_commands[] = Command::makePhpRstCmd($my_name, $path, $docs_parent_dir, $this->bin_dir_path);
-                    $this->progressBarManager->advance();
+                    $this->makeRst($target_file_path, "$root_prefix/$target_name");
+                } elseif (pathinfo($target_file_path, PATHINFO_EXTENSION) === 'php') {
+                    $file_commands[] = Command::makePhpRstCmd($target_name, $target_file_path, $docs_parent_dir, $this->bin_dir_path);
+                    $this->progressBar->advance();
                 }
             }
 
@@ -131,5 +131,20 @@ class Converter
                 exec($cmd);
             }
         }
+    }
+
+    /**
+     * @return int
+     */
+    private function countPhpFiles(): int
+    {
+        return count(
+            array_filter(
+                iterator_to_array(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->source_dir_path))),
+                function (\SplFileInfo $file): bool {
+                    return $file->getExtension() === 'php';
+                }
+            )
+        );
     }
 }
